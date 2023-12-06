@@ -15,7 +15,7 @@ const rollingFacotr = {
 };
 const rollingFolder = gui.addFolder("Rolling");
 rollingFolder.add(rollingFacotr, "velocity", 0, 0.3, 0.01).name("scale");
-rollingFolder.add(rollingFacotr, "damping", 0, 1, 0.01).name("damping");
+rollingFolder.add(rollingFacotr, "damping", 0, 1, 0.0001).name("damping");
 
 export class TCanvas {
 	private assets: Assets = {
