@@ -8,11 +8,14 @@
     "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "lint": "biome lint .",
+    "format": "biome format . --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.4.1",
     "@types/node": "^18.19.2",
-    "@types/three": "^0.146.0",
+    "@types/three": "^0.159.0",
     "autoprefixer": "^10.4.16",
     "gh-pages": "^4.0.0",
     "prettier": "^2.8.8",
@@ -24,6 +27,7 @@
   },
   "dependencies": {
     "gsap": "^3.12.3",
-    "three": "^0.147.0"
+    "lil-gui": "^0.19.1",
+    "three": "^0.159.0"
   }
 }

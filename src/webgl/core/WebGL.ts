@@ -1,75 +1,124 @@
-import * as THREE from 'three'
+import * as THREE from "three";
 
 class WebGL {
-  public renderer: THREE.WebGLRenderer
-  public scene: THREE.Scene
-  public camera: THREE.PerspectiveCamera
-  public time = { delta: 0, elapsed: 0 }
+	public renderer: THREE.WebGLRenderer;
+	public scene: THREE.Scene;
+	public camera: THREE.PerspectiveCamera;
+	public time = { delta: 0, elapsed: 0 };
 
-  private clock = new THREE.Clock()
-  private resizeCallback?: () => void
+	private raycaster = new THREE.Raycaster();
+	private mouse = new THREE.Vector2();
+	private hoverFunctions: { [key: string]: (e: MouseEvent) => void } = {};
+	private enterFunctions: { [key: string]: (e: MouseEvent) => void } = {};
+	private leaveFunctions: { [key: string]: (e: MouseEvent) => void } = {};
+	private hoveredObjectIDMap: { [key: string]: boolean } = {};
 
-  constructor() {
-    const { width, height, aspect } = this.size
+	private clock = new THREE.Clock();
+	private resizeCallback?: () => void;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-    this.renderer.setSize(width, height)
-    this.renderer.shadowMap.enabled = true
-    this.renderer.outputEncoding = THREE.sRGBEncoding
+	constructor() {
+		const { width, height, aspect } = this.size;
 
-    this.scene = new THREE.Scene()
-    this.camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 100)
+		this.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+		this.renderer.setPixelRatio(window.devicePixelRatio);
+		this.renderer.setSize(width, height);
+		this.renderer.shadowMap.enabled = true;
+		this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    window.addEventListener('resize', this.handleResize)
-  }
+		this.scene = new THREE.Scene();
+		this.camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 100);
 
-  private handleResize = () => {
-    this.resizeCallback && this.resizeCallback()
+		window.addEventListener("resize", this.handleResize);
+		window.addEventListener("mousemove", this.handleMouseMove);
+	}
 
-    const { width, height, aspect } = this.size
-    this.camera.aspect = aspect
-    this.camera.updateProjectionMatrix()
-    this.renderer.setSize(width, height)
-  }
+	private handleMouseMove = (event: MouseEvent) => {
+		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  get size() {
-    const { innerWidth: width, innerHeight: height } = window
-    return { width, height, aspect: width / height }
-  }
+		this.raycaster.setFromCamera(this.mouse, this.camera);
 
-  setup(container: HTMLElement) {
-    container.appendChild(this.renderer.domElement)
-  }
+		const intersects = this.raycaster.intersectObjects(this.scene.children);
+		for (const intersect of intersects) {
+			if (!this.hoveredObjectIDMap[intersect.object.uuid]) {
+				this.hoveredObjectIDMap[intersect.object.uuid] = true;
+				this.enterFunctions[intersect.object.uuid]?.(event);
+			}
+			this.hoverFunctions[intersect.object.uuid]?.(event);
+		}
+		const intersectedObjectIDs = intersects.map(
+			(intersect) => intersect.object.uuid,
+		);
+		const hoveredObjectIDs = Object.keys(this.hoveredObjectIDMap);
+		for (const hoveredObjectID of hoveredObjectIDs) {
+			if (!intersectedObjectIDs.includes(hoveredObjectID)) {
+				delete this.hoveredObjectIDMap[hoveredObjectID];
+				this.leaveFunctions[hoveredObjectID]?.(event);
+			}
+		}
+	};
 
-  setResizeCallback(callback: () => void) {
-    this.resizeCallback = callback
-  }
+	public addHoverFunction(uuid: string, func: (e: MouseEvent) => void) {
+		this.hoverFunctions[uuid] = func;
+	}
 
-  getMesh<T extends THREE.Material>(name: string) {
-    return this.scene.getObjectByName(name) as THREE.Mesh<THREE.BufferGeometry, T>
-  }
+	public addEnterFunction(uuid: string, func: (e: MouseEvent) => void) {
+		this.enterFunctions[uuid] = func;
+	}
 
-  render() {
-    this.renderer.render(this.scene, this.camera)
-  }
+	public addLeaveFunction(uuid: string, func: (e: MouseEvent) => void) {
+		this.leaveFunctions[uuid] = func;
+	}
 
-  requestAnimationFrame(callback: () => void) {
-    gl.renderer.setAnimationLoop(() => {
-      this.time.delta = this.clock.getDelta()
-      this.time.elapsed = this.clock.getElapsedTime()
-      callback()
-    })
-  }
+	private handleResize = () => {
+		this.resizeCallback && this.resizeCallback();
 
-  cancelAnimationFrame() {
-    gl.renderer.setAnimationLoop(null)
-  }
+		const { width, height, aspect } = this.size;
+		this.camera.aspect = aspect;
+		this.camera.updateProjectionMatrix();
+		this.renderer.setSize(width, height);
+	};
 
-  dispose() {
-    this.cancelAnimationFrame()
-    gl.scene?.clear()
-  }
+	get size() {
+		const { innerWidth: width, innerHeight: height } = window;
+		return { width, height, aspect: width / height };
+	}
+
+	setup(container: HTMLElement) {
+		container.appendChild(this.renderer.domElement);
+	}
+
+	setResizeCallback(callback: () => void) {
+		this.resizeCallback = callback;
+	}
+
+	getMesh<T extends THREE.Material>(name: string) {
+		return this.scene.getObjectByName(name) as THREE.Mesh<
+			THREE.BufferGeometry,
+			T
+		>;
+	}
+
+	render() {
+		this.renderer.render(this.scene, this.camera);
+	}
+
+	requestAnimationFrame(callback: () => void) {
+		gl.renderer.setAnimationLoop(() => {
+			this.time.delta = this.clock.getDelta();
+			this.time.elapsed = this.clock.getElapsedTime();
+			callback();
+		});
+	}
+
+	cancelAnimationFrame() {
+		gl.renderer.setAnimationLoop(null);
+	}
+
+	dispose() {
+		this.cancelAnimationFrame();
+		gl.scene?.clear();
+	}
 }
 
-export const gl = new WebGL()
+export const gl = new WebGL();
