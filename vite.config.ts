@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		root: "./src",
 		publicDir: "../public",
-		base: mode === "development" ? "/" : "/three-template/",
+		base: mode === "development" ? "/" : "/three-donuts/",
 		plugins: [glsl()],
 		build: {
 			rollupOptions: {
