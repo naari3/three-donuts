@@ -29,10 +29,10 @@ class WebGL {
 		this.camera = new THREE.PerspectiveCamera(50, aspect, 0.01, 100);
 
 		window.addEventListener("resize", this.handleResize);
-		window.addEventListener("mousemove", this.handleMouseMove);
+		window.addEventListener("pointermove", this.handlePointerMove);
 	}
 
-	private handleMouseMove = (event: MouseEvent) => {
+	private handlePointerMove = (event: PointerEvent) => {
 		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -71,7 +71,7 @@ class WebGL {
 	}
 
 	private handleResize = () => {
-		this.resizeCallback && this.resizeCallback();
+		this.resizeCallback?.();
 
 		const { width, height, aspect } = this.size;
 		this.camera.aspect = aspect;
