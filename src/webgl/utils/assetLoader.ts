@@ -30,8 +30,8 @@ export async function loadAssets(assets: Assets) {
 			if (["jpg", "png", "webp"].includes(extension)) {
 				const texture = await textureLoader.loadAsync(path);
 				texture.userData.aspect = texture.image.width / texture.image.height;
-				v.encoding && (texture.encoding = THREE.sRGBEncoding);
-				v.flipY !== undefined && (texture.flipY = v.flipY);
+				if (v.encoding) texture.colorSpace = THREE.SRGBColorSpace;
+				if (v.flipY !== undefined) texture.flipY = v.flipY;
 				v.data = texture;
 			} else if (["glb"].includes(extension)) {
 				const gltf = await gltfLoader.loadAsync(path);
@@ -47,7 +47,7 @@ export async function loadAssets(assets: Assets) {
 				// await video.play()
 				const texture = new THREE.VideoTexture(video);
 				texture.userData.aspect = video.videoWidth / video.videoHeight;
-				v.encoding && (texture.encoding = THREE.sRGBEncoding);
+				if (v.encoding) texture.colorSpace = THREE.SRGBColorSpace;
 				v.data = texture;
 			} else if (["hdr"].includes(extension)) {
 				const texture = await rgbeLoader.loadAsync(path);

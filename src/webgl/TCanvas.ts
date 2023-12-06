@@ -1,12 +1,12 @@
 import * as THREE from "three";
+// import { controls } from "./utils/OrbitControls";
+import { gui } from "./Gui";
 import { gl } from "./core/WebGL";
 import { effects } from "./effects/Effects";
 import fragmentShader from "./shaders/planeFrag.glsl";
 import vertexShader from "./shaders/planeVert.glsl";
 import { Assets, loadAssets } from "./utils/assetLoader";
 import { calcCoveredTextureScale } from "./utils/coveredTexture";
-// import { controls } from "./utils/OrbitControls";
-import { gui } from "./Gui";
 
 const velocity = new THREE.Vector3(0, 0, 0);
 const rollingFacotr = {
@@ -31,6 +31,7 @@ export class TCanvas {
 	}
 
 	private init() {
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
 		gl.setup(this.parentNode.querySelector(".three-container")!);
 		gl.scene.background = new THREE.Color("black");
 		gl.camera.position.z = 1.5;
