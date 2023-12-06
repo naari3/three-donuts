@@ -5,7 +5,7 @@ import fragmentShader from "./shaders/planeFrag.glsl";
 import vertexShader from "./shaders/planeVert.glsl";
 import { Assets, loadAssets } from "./utils/assetLoader";
 import { calcCoveredTextureScale } from "./utils/coveredTexture";
-import { controls } from "./utils/OrbitControls";
+// import { controls } from "./utils/OrbitControls";
 import { gui } from "./Gui";
 
 const velocity = new THREE.Vector3(0, 0, 0);
@@ -101,7 +101,7 @@ export class TCanvas {
 			),
 		);
 
-		controls.update();
+		// controls.update();
 		// gl.render()
 		effects.render();
 	};
