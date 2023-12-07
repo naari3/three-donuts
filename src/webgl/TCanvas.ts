@@ -77,9 +77,13 @@ export class TCanvas {
 		gl.scene.add(donutMesh);
 
 		gl.addHoverFunction(donutMesh.uuid, (e) => {
+			const latestPointerEvent = gl.getLatestPointerEvent();
+			if (!latestPointerEvent) return;
+			const movementX = e.clientX - latestPointerEvent.clientX;
+			const movementY = e.clientY - latestPointerEvent.clientY;
 			const mouseDelta = new THREE.Vector2(
-				e.movementX / window.innerWidth,
-				-e.movementY / window.innerHeight,
+				movementX / window.innerWidth,
+				-movementY / window.innerHeight,
 			).multiplyScalar(2.5);
 			velocity.x += mouseDelta.x * rollingFacotr.velocity;
 			velocity.y += -mouseDelta.y * rollingFacotr.velocity;

@@ -12,6 +12,7 @@ class WebGL {
 	private enterFunctions: { [key: string]: (e: MouseEvent) => void } = {};
 	private leaveFunctions: { [key: string]: (e: MouseEvent) => void } = {};
 	private hoveredObjectIDMap: { [key: string]: boolean } = {};
+	private latestPointerEvent: PointerEvent | null = null;
 
 	private clock = new THREE.Clock();
 	private resizeCallback?: () => void;
@@ -30,6 +31,10 @@ class WebGL {
 
 		window.addEventListener("resize", this.handleResize);
 		window.addEventListener("pointermove", this.handlePointerMove);
+	}
+
+	public getLatestPointerEvent() {
+		return this.latestPointerEvent;
 	}
 
 	private handlePointerMove = (event: PointerEvent) => {
@@ -56,6 +61,7 @@ class WebGL {
 				this.leaveFunctions[hoveredObjectID]?.(event);
 			}
 		}
+		this.latestPointerEvent = event;
 	};
 
 	public addHoverFunction(uuid: string, func: (e: MouseEvent) => void) {
